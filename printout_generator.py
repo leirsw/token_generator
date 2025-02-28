@@ -1,8 +1,14 @@
+# Before running: source venv/bin/activate
+#To run: streamlit run printout_generator.py
+
+
+
 import streamlit as st
 
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from datetime import datetime
+import io
 
 
 
@@ -27,11 +33,6 @@ with col2:
         dual_name = st.checkbox("Dual name")
     size = st.selectbox("Size", ['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'])
     token_type = st.selectbox("Type", ['tabletop', 'initiative'])
-    is_clicked_save = st.button("Save Token")
-
-
-
-
 
 
 def create_token(image_path, size='medium', token_type='tabletop', name=None, dual_name = False):
@@ -209,14 +210,23 @@ if is_clicked_generate:
 if st.session_state.token:
     st.image(st.session_state.token)
 
-if is_clicked_save:
-    if st.session_state.token:
-        # Save token
-        tokenname = name if name else "token"
-        tokentype = 'tt' if token_type == 'tabletop' else 'init'
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"../generated_tokens/{tokenname}_{tokentype}_{timestamp}.png"
-        st.session_state.token.save(f"../generated_tokens/{tokenname}_{tokentype}_{timestamp}.png")
-        st.success(f"Token saved as {tokenname}_{tokentype}_{timestamp}.png")
+
+    # Create filename
+    tokenname = name if name else "token"
+    tokentype = 'tt' if token_type == 'tabletop' else 'init'
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"../generated_tokens/{tokenname}_{tokentype}_{timestamp}.png"
+
+    buf = io.BytesIO()
+    st.session_state.token.save(buf, format="PNG")
+    buf.seek(0)
+
+            # Provide download button
+    st.download_button(
+        label="Download Token",
+        data=buf,
+        file_name=filename,
+        mime="image/png"
+    )
 
 
