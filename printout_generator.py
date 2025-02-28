@@ -1,12 +1,6 @@
-# Before running: source venv/bin/activate
-#To run: streamlit run printout_generator.py
-
-
-
 import streamlit as st
 
 from PIL import Image, ImageDraw, ImageFont
-import numpy as np
 from datetime import datetime
 import io
 
